@@ -1,0 +1,28 @@
+name: Validate Kubernetes manifests
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  kubeconform:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # Checkout repository code
+      - uses: actions/checkout@v4
+
+      # Set up kubeconform CLI in the runner
+      - name: Set up Kubeconform
+        uses: bmuschko/setup-kubeconform@v1
+
+      # Run kubeconform on all YAML files recursively from root
+      - name: Validate manifests
+        run: |
+          kubeconform -summary -output json .
+        continue-on-error: true
+        
