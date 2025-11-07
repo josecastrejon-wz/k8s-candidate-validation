@@ -3,7 +3,7 @@ name: Validate Kubernetes manifests
 on:
   push:
     branches:
-      - '**'
+      - 'k8sValidate-test'
   pull_request:
 
 jobs:
