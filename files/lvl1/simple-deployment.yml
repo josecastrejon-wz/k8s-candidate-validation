@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+  labels:
+    app: custom-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: custom-app
+  template:
+    metadata:
+      labels:
+        app: custom-app
+    spec:
+      containers:
+      - name: custom-app
+        image: test-app:latest

@@ -23,6 +23,6 @@ jobs:
       # Run kubeconform on all YAML files recursively from root
       - name: Validate manifests
         run: |
-          kubeconform -summary -output json ./files/
+          kubeconform -summary -output json ./files/lvl1
         continue-on-error: true
         
