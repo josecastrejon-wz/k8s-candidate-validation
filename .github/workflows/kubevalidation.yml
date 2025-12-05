@@ -52,11 +52,6 @@ jobs:
           body: |
             ✅ **Kubernetes Manifest Validation Success**
             All modified manifests passed the manifest analisys. The file syntax is correct and conforms to the cluster schema.
-     
-      - name: Echo validation for debugging
-        run: |
-          echo "Kubeconform step conclusion: ${{ steps.kubeconform.conclusion }}"
-          echo "Kubeconform step output: ${{ steps.kubeconform.outputs }}"
           
       - name: Comment on Failed Manifest Validation
         # Runs if the job failed when files contains errors
