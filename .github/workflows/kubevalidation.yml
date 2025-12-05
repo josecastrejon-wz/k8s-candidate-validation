@@ -1,0 +1,71 @@
+name: Kubernetes Manifest Schema Validator
+
+# Triggers the workflow on a push event
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/** 
+      - k8sValidate-test
+
+jobs:
+  validate_manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔎 Identify Modified Kubernetes Manifests
+        id: files
+        # Finds modified .yaml/.yml files, typically located in k8s/ or manifests/ directories
+        run: |
+          # Use git diff to find only the new or modified .yml files in the push
+          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.y[a]*ml$' | grep -E '(k8s/|manifests/|deployments/|lvl1/|lvl2/|lvl3/)' || true)
+          echo "k8s_files=$files" >> $GITHUB_OUTPUT
+          
+          if [ -z "$files" ]; then
+            echo "::notice::Skipping validation: No Kubernetes manifest files modified in this push."
+            echo "skip_validation=true" >> $GITHUB_OUTPUT
+          fi
+          
+      # --- 🧠 Intelligent Analysis (IA) - Kubeval Schema Check ---
+      - name: 🧠 Run Kubeval Schema Validation
+        # Only run if Kubernetes files were actually modified
+        if: steps.files.outputs.skip_validation != 'true'
+        # Kubeval validates manifests against official Kubernetes schemas (this is the IA component)
+        uses: instrumenta/kubeval-action@master
+        id: kubeval
+        with:
+          files: ${{ steps.files.outputs.k8s_files }}
+          # IMPORTANT: Specify the Kubernetes version for accurate schema analysis
+          kubernetes_version: '1.29.0' 
+          # Fail the job if validation errors are found (incorrect fields, missing required properties)
+          exit_on_error: true
+          
+      # --- Commenting on Analysis Results ---
+      - name: 💬 Create Success Comment on Commit
+        # Runs if the entire job succeeded (files were checked and passed)
+        if: success() && steps.files.outputs.skip_validation != 'true'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            ✅ **Kubernetes Manifest Validation Success**
+            All modified manifests passed the **Intelligent Analysis (Kubeval Schema Check)** against K8s version `1.29.0`. The file syntax is correct and conforms to the cluster schema.
+          number: ${{ github.sha }}
+          header: 'k8s-validation-summary' # Helps update the comment instead of creating new ones
+          
+      - name: ❌ Create Failure Comment on Commit
+        # Runs if the job failed (i.e., Kubeval found errors)
+        if: failure() && steps.files.outputs.skip_validation != 'true'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            🚨 **Kubernetes Manifest Validation Failed**
+            The GitHub Action failed due to errors found during **Intelligent Analysis (Kubeval Schema Check)**.
+            
+            Please check the **`🧠 Run Kubeval Schema Validation`** step output in the workflow logs for details on:
+            1.  **YAML Syntax Errors**
+            2.  **Kubernetes Schema Errors** (e.g., misspelled field names, invalid resource kind, or missing required fields).
+          number: ${{ github.sha }}
+          header: 'k8s-validation-summary'
