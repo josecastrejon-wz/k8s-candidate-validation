@@ -42,9 +42,10 @@ jobs:
         # Runs only if there are files to validate
         id: kubeconform
         run: |
-            kubeconform -summary -output json -strict -verbose ${{ steps.files.outputs.k8s_files }} >> validation_result.json
-            JSON_DATA=$(cat validation_result.json)
-            echo "validation_result=$JSON_DATA" >> $GITHUB_OUTPUT
+            kubeconform -summary -output json -strict -verbose ${{ steps.files.outputs.k8s_files }}
+      - name: Echo previous output for debug
+        run: |
+          echo "${{ steps.kubeconform.outcome }}"
           
       - name: Comment on Successful Manifest Validation
         # Runs if the entire job succeeded (files were checked and passed)
