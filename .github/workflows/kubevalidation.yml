@@ -33,18 +33,15 @@ jobs:
       
       - name: Run Kubeconform Setup
         if: steps.files.outputs.skip_validation != 'true'
-        uses: bmuschko/setup-kubeconform@
+        uses: bmuschko/setup-kubeconform@v1
         id: kubeconform_setup
         with:
           kubeconform-version: '0.6.1'
 
       - name: Run Kubeconform Validation
         # Runs only if there are files to validate
-        if: steps.files.outputs.skip_validation != 'true'
-        uses: bmuschko/setup-kubeconform@v1
         id: kubeconform
-        with:
-          run: |
+        run: |
             echo "validation_result=kubeconform -summary -output json -strict ${{ steps.files.outputs.k8s_files }}" >> $GITHUB_OUTPUT
         continue-on-error: true
           
