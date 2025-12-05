@@ -43,9 +43,6 @@ jobs:
         id: kubeconform
         run: |
             kubeconform -summary -output json -strict -verbose ${{ steps.files.outputs.k8s_files }}
-      - name: Echo previous output for debug
-        run: |
-          echo "${{ steps.kubeconform.outcome }}"
           
       - name: Comment on Successful Manifest Validation
         # Runs if the entire job succeeded (files were checked and passed)
@@ -55,9 +52,11 @@ jobs:
           body: |
             ✅ **Kubernetes Manifest Validation Success**
             All modified manifests passed the manifest analisys. The file syntax is correct and conforms to the cluster schema.
-            ${{
-              steps.kubeconform.outputs.validation_result
-            }}
+     
+      - name: Echo validation for debugging
+        run: |
+          echo "Kubeconform step conclusion: ${{ steps.kubeconform.conclusion }}"
+          echo "Kubeconform step output: ${{ steps.kubeconform.outputs }}"
           
       - name: Comment on Failed Manifest Validation
         # Runs if the job failed when files contains errors
