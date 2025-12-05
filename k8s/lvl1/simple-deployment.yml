@@ -17,3 +17,5 @@ spec:
       containers:
       - name: custom-app
         image: test-app:latest
+        purts:
+        - containerPorta 8080
