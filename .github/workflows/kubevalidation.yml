@@ -40,11 +40,11 @@ jobs:
           kubeconform-version: '0.6.1'
           # Fail the job if validation errors are found
           run: |
-            kubeconform -summary -output json -strict ${{ steps.files.outputs.k8s_files }} >> $GITHUB_STEP_SUMMARY
+            echo "validation_result=kubeconform -summary -output json -strict ${{ steps.files.outputs.k8s_files }}" >> $GITHUB_OUTPUT
           
       - name: Comment on Successful Manifest Validation
         # Runs if the entire job succeeded (files were checked and passed)
-        if: steps.kubeconform.outcome == 'success' && steps.files.outputs.skip_validation != 'true'
+        if: steps.kubeconform.conclusion == 'success' && steps.files.outputs.skip_validation != 'true'
         uses: peter-evans/commit-comment@v4
         with:
           body: |
