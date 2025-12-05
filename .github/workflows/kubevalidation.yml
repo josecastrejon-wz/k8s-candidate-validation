@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
+        fetch-depth: 0  # Fetch full history for accurate git diff
 
       - name: 🔎 Identify Modified Kubernetes Manifests
         id: files
