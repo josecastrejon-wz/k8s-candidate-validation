@@ -42,8 +42,9 @@ jobs:
         # Runs only if there are files to validate
         id: kubeconform
         run: |
-            kubeconform -summary -output json -strict -verbose ${{ steps.files.outputs.k8s_files }}
-
+            kubeconform -summary -output json -strict -verbose ${{ steps.files.outputs.k8s_files }} >> validation_result.json
+            JSON_DATA=$(cat validation_result.json)
+            echo "validation_result=$JSON_DATA" >> $GITHUB_OUTPUT
           
       - name: Comment on Successful Manifest Validation
         # Runs if the entire job succeeded (files were checked and passed)
@@ -53,9 +54,11 @@ jobs:
           body: |
             ✅ **Kubernetes Manifest Validation Success**
             All modified manifests passed the manifest analisys. The file syntax is correct and conforms to the cluster schema.
-            $validation_result
+            ${{
+              steps.kubeconform.outputs.validation_result
+            }}
           
-      - name: Create Failure Comment on Commit
+      - name: Comment on Failed Manifest Validation
         # Runs if the job failed when files contains errors
         if: failure() && steps.files.outputs.skip_validation != 'true'
         uses: peter-evans/commit-comment@v4
@@ -64,6 +67,6 @@ jobs:
             🚨 **Kubernetes Manifest Validation Failed**
             The GitHub Action failed due to errors found during K8s manifest analysis with Kubeconform.
             
-            Please check the **`Run Kubeconform Schema Validation`** step output in the workflow logs for details on:
+            Please check the **`Run Kubeconform Validation`** step output in the workflow logs for details on:
             1.  **YAML Syntax Errors**
             2.  **Kubernetes Schema Errors** (e.g., misspelled field names, invalid resource kind, or missing required fields).

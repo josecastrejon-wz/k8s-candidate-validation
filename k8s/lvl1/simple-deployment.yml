@@ -18,5 +18,5 @@ spec:
       - name: custom-app
         image: test-app:latest
         purts:
-        - containerPorta 8080
-        enva _:
+        - containerPort: 8080
+        enva _:  
