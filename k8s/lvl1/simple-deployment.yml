@@ -17,6 +17,3 @@ spec:
       containers:
       - name: custom-app
         image: test-app:latest
-        resurces:
-          limites:
-            memorua: "256Mi"
