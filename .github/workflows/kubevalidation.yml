@@ -40,6 +40,8 @@ jobs:
           kubeconform-version: '0.6.1'
           input: ${{ steps.files.outputs.k8s_files }}
           # Fail the job if validation errors are found
+          run:
+            kubeconform -summary -output json ${{ steps.files.outputs.k8s_files }} -
           strict: true
           
       - name: Create Success Comment on Commit
