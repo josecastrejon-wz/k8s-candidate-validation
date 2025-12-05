@@ -34,7 +34,7 @@ jobs:
       - name: Run Kubeconform Validation
         # Runs only if there are files to validate
         if: steps.files.outputs.skip_validation != 'true'
-        uses: marketplace/kubeconform-action@v1
+        uses: bmuschko/setup-kubeconform@v1
         id: kubeconform
         with:
           input: ${{ steps.files.outputs.k8s_files }}
