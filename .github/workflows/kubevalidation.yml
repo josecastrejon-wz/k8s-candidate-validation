@@ -40,13 +40,13 @@ jobs:
           kubeconform-version: '0.6.1'
           input: ${{ steps.files.outputs.k8s_files }}
           # Fail the job if validation errors are found
-          run:
-            echo "kubeconform -summary -output json ${{ steps.files.outputs.k8s_files }}" 
+          run: |
+            kubeconform -summary -output json ${{ steps.files.outputs.k8s_files }} 
           strict: true
           
       - name: Create Success Comment on Commit
         # Runs if the entire job succeeded (files were checked and passed)
-        if: success() && steps.files.outputs.skip_validation != 'true'
+        if: steps.kubeconform.outcome == 'success' && steps.files.outputs.skip_validation != 'true'
         uses: peter-evans/commit-comment@v4
         with:
           body: |
