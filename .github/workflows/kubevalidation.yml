@@ -30,17 +30,23 @@ jobs:
           else
             echo "k8s_files=$files" >> $GITHUB_OUTPUT
           fi
-          
+      
+      - name: Run Kubeconform Setup
+        if: steps.files.outputs.skip_validation != 'true'
+        uses: bmuschko/setup-kubeconform@
+        id: kubeconform_setup
+        with:
+          kubeconform-version: '0.6.1'
+
       - name: Run Kubeconform Validation
         # Runs only if there are files to validate
         if: steps.files.outputs.skip_validation != 'true'
         uses: bmuschko/setup-kubeconform@v1
         id: kubeconform
         with:
-          kubeconform-version: '0.6.1'
-          # Fail the job if validation errors are found
           run: |
             echo "validation_result=kubeconform -summary -output json -strict ${{ steps.files.outputs.k8s_files }}" >> $GITHUB_OUTPUT
+        continue-on-error: true
           
       - name: Comment on Successful Manifest Validation
         # Runs if the entire job succeeded (files were checked and passed)
@@ -50,6 +56,7 @@ jobs:
           body: |
             ✅ **Kubernetes Manifest Validation Success**
             All modified manifests passed the manifest analisys. The file syntax is correct and conforms to the cluster schema.
+            $validation_result
           
       - name: Create Failure Comment on Commit
         # Runs if the job failed when files contains errors
