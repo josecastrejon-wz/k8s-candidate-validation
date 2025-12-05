@@ -19,4 +19,4 @@ spec:
         image: test-app:latest
         purts:
         - containerPorta 8080
-        enva _:
+        enva :
