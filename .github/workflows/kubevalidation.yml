@@ -6,7 +6,7 @@ on:
       - main
       - develop
       - feature/**
-      - k8sValidate-test/**
+      - k8sValidate-test
       - candidate/**
 
 jobs:
